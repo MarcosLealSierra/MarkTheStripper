@@ -26,17 +26,27 @@ source functions.sh
 echo -e "Choose password for root\n"
 passwd 
 
-local_user="marcos"
+echo -e "Choose a username: "
+read local_user
+
+echo -e "Choose an SSH Port: "
+read port
 
 system_update
 etckeeper_init
-configure_user
-change_homes_file_mode_bites
+install_editor
 install_version_control
 install_compilation_environment
 install_ssh_fail2ban
 install_misc
-install_fail2ban
+install_monitoring
 install_local_backups
+install_modsecurity
+configure_user
 configure_grub
+configure_modsecurity_owasp
+configure_apache
+configure_iptables
+change_homes_file_mode_bites
+customize_crontab
 restart_services

@@ -14,56 +14,9 @@ etccommiter() {
     etckeeper commit "[$(basename $0)]: $@"
 }
 
-change_homes_file_mode_bites() {
-    chmod -R 0700 /home/* /root;
-    sed -i 's/DIR_MODE=0755/DIR_MODE=0700/' /etc/adduser.conf;
-    etccommiter "set homes file mode bites to 0700"
-}
-
-configure_grub() {
-    echo "GRUB_RECORDFAIL_TIMEOUT=5" >> /etc/default/grub
-    update-grub
-    etccommiter "Configure grub"
-}
-
-configure_user() {
-    adduser $local_user
-    cp templates/userbashrc "/home/$local_user/.bashrc"
-    cp templates/userbashaliases "/home/$local_user/.bash_aliases"
-    cp templates/.vimrc "/home/$local_user/.vimrc"
-    cp -R templates/.vim "/home/$local_user/.vim"
-    mkdir "/home/$local_user/.ssh"
-    cp templates/authorized_keys "/home/$local_user/.ssh/" 
-    chown -R $local_user:$local_user "/home/$local_user/.vimrc" "/home/$local_user/.ssh" \
-        "/home/$local_user/.bashrc" "/home/$local_user/.bash_aliases" \
-        "/home/$local_user/.vim"
-    chmod -R 0700 /home/$local_user/.ssh
-}
-
-customize_crontab() {
-    if ! ( crontab -l | grep -q ntpdate ); then
-        TMPCRONFILE=$(mktemp /tmp/cron.XXXXXXXXX)
-        cat >> $TMPCRONFILE << EOF
-PATH=/usr/sbin:/usr/bin:/sbin:/bin
-
-$(crontab -l)
-# aviso de equipo reiniciado
-@reboot echo "El equipo \`hostname\` ha sido reiniciado!"
-
-# sincronización horaria
-55 23 * * * ntpdate hora.roa.es | logger -t NTP
-@reboot ntpdate hora.roa.es | logger -t NTP
-EOF
-    crontab $TMPCRONFILE
-    rm $TMPCRONFILE
-    fi
-}
-
-install_local_backups() {
-    mv /root/src/servers/backup /etc/
-    cp -R /root/src/servers/cron.daily /etc/
-    chown -R root. /etc/backup
-    etccommiter "Install local backups"
+install_editor() {
+    apt install -y vim vim-scripts
+    update-alternatives --set editor /usr/bin/vim.basic
 }
 
 install_version_control() {
@@ -81,8 +34,6 @@ install_compilation_environment() {
 }
 
 install_ssh_fail2ban() {
-    echo -n "Choose a port for SSH:"
-    read port
     apt install -y openssh-client openssh-server fail2ban
     ssh-keygen
     cp templates/authorized_keys /root/.ssh/authorized_keys
@@ -106,11 +57,159 @@ install_monitoring() {
     etccommiter "Install utility and monitoring packages"
 }
 
-install_editor() {
-    apt install -y vim vim-scripts
-    update-alternatives --set editor /usr/bin/vim.basic
+install_local_backups() {
+    mv /root/src/servers/backup /etc/
+    cp -R /root/src/servers/cron.daily /etc/
+    chown -R root. /etc/backup
+    etccommiter "Install local backups"
+}
+
+install_modsecurity() {
+    apt install -y libapache2-mod-security2
+    mv /etc/modsecurity/modsecurity.conf-recommended /etc/modsecurity/modsecurity.conf
+    /etc/init.d/apache2 restart
+}
+
+configure_user() {
+    adduser $local_user
+    cp templates/userbashrc "/home/$local_user/.bashrc"
+    cp templates/userbashaliases "/home/$local_user/.bash_aliases"
+    cp templates/.vimrc "/home/$local_user/.vimrc"
+    cp -R templates/.vim "/home/$local_user/.vim"
+    mkdir "/home/$local_user/.ssh"
+    cp templates/authorized_keys "/home/$local_user/.ssh/" 
+    chown -R $local_user:$local_user "/home/$local_user/.vimrc" "/home/$local_user/.ssh" \
+        "/home/$local_user/.bashrc" "/home/$local_user/.bash_aliases" \
+        "/home/$local_user/.vim"
+    chmod -R 0700 /home/$local_user/.ssh
+}
+
+configure_grub() {
+    echo "GRUB_RECORDFAIL_TIMEOUT=5" >> /etc/default/grub
+    update-grub
+    etccommiter "Configure grub"
+}
+
+configure_modsecurity_owasp() {
+    mkdir /etc/apache2/modsecurity.d
+    git clone https://github.com/SpiderLabs/owasp-modsecurity-crs /etc/apache2/modsecurity.d
+    mv /etc/apache2/modsecurity.d/crs-setup.conf.example /etc/apache2/modsecurity.d/crs-setup.conf
+    mv /etc/apache2/modsecurity.d/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf.example \
+        /etc/apache2/modsecurity.d/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf
+    mv /etc/apache2/modsecurity.d/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf.example \
+        /etc/apache2/modsecurity.d/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf
+    cp templates/security2 /etc/apache2/mods-available/security2.conf
+    modsecrec="/etc/modsecurity/modsecurity.conf"
+    sed s/SecRuleEngine\ DetectionOnly/SecRuleEngine\ On/g $modsecrec > /tmp/salida
+    mv /tmp/salida /etc/modsecurity/modsecurity.conf
+    echo -n "Firma servidor: "; read firmaserver
+    echo -n "Powered: "; read poweredby
+    modseccrs10su="/etc/apache2/modsecurity.d/crs-setup.conf"
+    echo "SecServerSignature \"$firmaserver\"" >> $modseccrs10su
+    echo "Header set X-Powered-By \"$poweredby\"" >> $modseccrs10su
+    a2enmod headers
+    /etc/init.d/apache2 restart
+}
+
+configure_apache() {
+    cp templates/apache /etc/apache2/apache2.conf
+    /etc/init.d/apache2 restart
+}
+
+configure_iptables() {
+    OUTIF=$(ip route get 8.8.8.8 | awk '{print $5}')
+    : ${WANIP:=""}
+
+    if [ "$WANIP" == "" ]; then
+        WANIP=$(hostname -I | awk '{print $1}')
+    fi
+
+    /sbin/iptables --flush
+
+    # Por defecto impedir todo el tráfico de entrada y pero permitir todo el
+    # tráfico saliente.
+    /sbin/iptables --policy INPUT DROP
+    /sbin/iptables --policy FORWARD DROP
+    /sbin/iptables --policy OUTPUT ACCEPT
+
+    # Permitir todo el tráfico entrante de la interfaz de loopback
+    /sbin/iptables -A INPUT -i lo -j ACCEPT
+
+    # Habilitar el retorno de paquetes
+    /sbin/iptables -A INPUT -i $OUTIF -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+    # Allow icmp input so that people can ping us
+    /sbin/iptables -A INPUT -p icmp --icmp-type 8 -m state --state NEW -j ACCEPT
+
+    # Perimtir conexiones de IPs concretas
+    # /sbin/iptables -A INPUT -p tcp -i $OUTIF -m state --state NEW -s xxxxxxxx -j ACCEPT
+
+    # Permitir el siguiente tráfico entrante
+    # ssh
+    /sbin/iptables -A INPUT -p tcp -i $OUTIF --dport $port -m state --state NEW -j ACCEPT
+
+    # Check new packets are SYN packets for syn-flood protection
+    /sbin/iptables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP
+
+    # Drop fragmented packets
+    /sbin/iptables -A INPUT -f -j DROP
+
+    # Drop malformed XMAS packets
+    /sbin/iptables -A INPUT -p tcp --tcp-flags ALL ALL -j DROP
+
+    # Drop null packets
+    /sbin/iptables -A INPUT -p tcp --tcp-flags ALL NONE -j DROP
+
+    # Log then drop any packets that are not allowed. You will probably want to turn off the logging
+    #/sbin/iptables -A INPUT -j LOG
+    /sbin/iptables -A INPUT -j REJECT
+
+    # permitimos el acceso HTTPS y HTTP a determinadas webs
+    /sbin/iptables -N ACCESO_HTTP
+    /sbin/iptables -A ACCESO_HTTP --src $WANIP -j ACCEPT
+    /sbin/iptables -I ACCESO_HTTP 1 --src $CLIENTE -j ACCEPT
+    # bloquear y logear ciertas IPs (debe ir antes del ACCEPT general)
+    # /sbin/iptables -A ACCESO_HTTP --src XXXXX -j LOG
+    # /sbin/iptables -A ACCESO_HTTP --src XXXXX -j DROP
+    /sbin/iptables -A ACCESO_HTTP -j ACCEPT # DROP si queremos ser mas restrictivos
+    /sbin/iptables -I INPUT -m tcp -p tcp --dport 443 -j ACCESO_HTTP
+    /sbin/iptables -I INPUT -m tcp -p tcp --dport 80  -j ACCESO_HTTP
+
+    # guardamos las tablas permanentemente (estas quedan en /etc/sysconfig/iptables; es equivalente a 
+    # iptables-save > /etc/sysconfig/iptables):
+    /sbin/iptables -nL -v
+    apt-get install -y iptables-persistent
+    iptables-save > /etc/iptables/rules.v4
+}
+
+change_homes_file_mode_bites() {
+    chmod -R 0700 /home/* /root;
+    sed -i 's/DIR_MODE=0755/DIR_MODE=0700/' /etc/adduser.conf;
+    etccommiter "set homes file mode bites to 0700"
+}
+
+customize_crontab() {
+    if ! ( crontab -l | grep -q ntpdate ); then
+        TMPCRONFILE=$(mktemp /tmp/cron.XXXXXXXXX)
+        cat >> $TMPCRONFILE << EOF
+PATH=/usr/sbin:/usr/bin:/sbin:/bin
+
+$(crontab -l)
+# aviso de equipo reiniciado
+@reboot echo "El equipo \`hostname\` ha sido reiniciado!"
+
+# sincronización horaria
+55 23 * * * ntpdate hora.roa.es | logger -t NTP
+@reboot ntpdate hora.roa.es | logger -t NTP
+EOF
+    crontab $TMPCRONFILE
+    rm $TMPCRONFILE
+    fi
 }
 
 restart_services() {
     /etc/init.d/ssh restart
+    /etc/init.d/apache2 restart
+    /etc/init.d/fail2ban restart
+    /etc/init.d/mysql restart
 }
