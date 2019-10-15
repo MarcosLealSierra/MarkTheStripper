@@ -1,0 +1,31 @@
+#! /bin/bash
+# vim:ts=4:sw=4:et:ft=sh
+# Medida preventiva de respaldo de los ficheros tdb de samba
+# añade al include el directorio /var/lib/samba
+# los ficheros de configuración /etc/samba vienen incluidos por defecto con
+# /etc/
+# Created: 2015-07-10
+
+# Copyright (c) 2015: Hilario J. Montoliu <hmontoliu@gmail.com>
+ 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.  See http://www.gnu.org/copyleft/gpl.html for
+# the full text of the license.
+
+TDBDIR=/var/lib/samba
+
+# existe samba?
+if [ ! -d $TDBDIR ]; then
+    # no se hace nada
+    exit 0
+fi
+
+# incluir lib samba en el backup
+if ! grep -q $TDBDIR /etc/backup/include; then
+    echo $TDBDIR >> /etc/backup/include
+fi
+
+# realizar un backup de los ficheros *.tdb (por si hiciera falta)
+cd $TDBDIR && /usr/bin/tdbbackup *.tdb

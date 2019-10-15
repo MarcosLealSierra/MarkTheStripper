@@ -1,0 +1,16 @@
+# NOTA: Ojo al editar este fichero ya que se usa para empaquetar los ficheros
+# relacionados con la copia de seguridad. Marcar los comentarios con #.
+
+# Archivos que gestionan las copias de seguridad:
+/etc/cron.daily/backup # script de backup
+/etc/backup/backup_watchdog.sh # temporizador para verificar que el script de backup ha terminado o no; no se usa
+/etc/backup/comun.sh   # libreria de variables y funciones comunes a los scripts
+/etc/backup/watchdog.sh   # Verifica si el backup ha eliminado el lockfile, sino envia correo
+/etc/backup/include    # listado de directorios a respaldar
+/etc/backup/exclude    # archivos o directorios a ignorar dentro de los respaldados (rsync)
+/etc/backup/prerespaldo/  # run-parts: eventos previos a la copia de seguridad
+/etc/backup/postrespaldo/ # run-parts: eventos poster. a la copia de seguridad
+/etc/backup/README # este fichero
+/etc/backup/empaquetar.sh # script, genera tar.gz con ficheros listados aqui. 
+/etc/backup/mailbackuperrores.sh # email si hay errores durante el backup.
+/etc/backup/mailbackuptermerrores.sh # ln del anterior. email errores graves.

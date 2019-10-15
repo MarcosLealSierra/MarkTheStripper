@@ -1,0 +1,171 @@
+#! /bin/bash
+# vim:ts=4:sw=4:et:ft=sh
+# script de backup basado en rsync y cp. 
+# ESTO ES SOLO LA PLANTILLA; EDITAR DIRECTORIOS ORIGEN Y DESTINO 
+# mantiene 7 copias totales(*) (una por cada día de la semana) de los
+# directorios listados en $DIRECTORIOS_ORIGEN y las guarda en $BACKUP_BASE_DIR
+#
+# (*) incrementales en realiadad: Ver los comentarios del script y la
+# documentación del servidor centos.
+#
+# Ficheros: /etc/backup/exclude # Listado de ficheros/dirs a excluir
+#           /etc/backup/parts/* # scripts a ejecutar previos al backup
+#
+# Created: 2007-10-21
+# 
+# Copyright (c) 2007: Hilario J. Montoliu <hmontoliu@gmail.com>
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.  See http://www.gnu.org/copyleft/gpl.html for
+# the full text of the license.
+
+# somos root o no!
+if [ $(id -u) != 0 ];
+then
+    echo "ERROR: $0 necesita permisos de root para ejecutarse" >&2 
+    exit 1
+fi
+
+# Verbose o quiet logs (por defecto verbose)
+VERBOSE=1
+if [ "$1" == "-q" ]; then
+    VERBOSE=0
+fi
+
+# Cargamos las variables necesarias
+VARIABLES=/etc/backup/comun.sh
+if [ ! -f "$VARIABLES" ];
+then
+    echo "ERROR: $0 necesita el fichero $VARIABLES para ejecutarse" >&2
+    exit 1
+fi
+
+source "$VARIABLES" 
+
+# output al log y a stdout
+exec > >(tee ${LOGFILE})
+exec 2>&1
+
+# fichero lock
+touchlockfile
+echo "PID=$$" >> "$LOCKFILE"
+echo "LOGFILE=$LOGFILE" >> "$LOCKFILE"
+
+# En caso de error enviar correo
+trap /etc/backup/mailbackuptermerrores.sh INT TERM HUP
+# Al salir comprobar el log
+trap /etc/backup/mailbackuperrores.sh EXIT
+
+# Funciones
+function runParts () {
+    DIRECTORIO="$1" # directorio donde ejecutar run-parts
+    ACCION="$2" #pre-respaldo/post-respaldo
+    evento "Iniciando eventos $ACCION" 
+    if [ -d "${DIRECTORIO}" ]; then
+       if [ "$(run-parts --test ${DIRECTORIO})" == "" ]; then
+           evento "No hay eventos $ACCION que realizar."
+       else
+           run-parts "${DIRECTORIO}"
+       fi
+    fi
+}
+
+# Si es necesario crear el directorio raiz de las copias de seguridad y el de
+# registro de eventos
+mkdir -p "${BACKUP_BASE_DIR}" "${LOGDIR}"
+
+evento "$INI_BACKUP_STR"
+
+# Definición del variables no globales:
+# Directorios que vamos a respaldar (del fichero $INCLUDE_FILE)
+DIRECTORIOS_ORIGEN="$(sed -n '/^#.*/d; s/\(.[^#]*\)#\?.*/\1/p' $INCLUDE_FILE)" 
+
+# Opciones del comando rsync:
+# Nota: con -A preservamos las acls.
+# Nota: con -R mantenemos los paths completos (útil para restaurar).
+OPTS_RSYNC="-aR -A --delete --exclude-from $EXCLUDE_FILE $EXTRA_RSYNC_OPTS"
+
+# Prioridad IO con ionice
+if [ -x $(which ionice) ]; then
+    IONICE="$(which ionice) -c $IONICEPR"
+else
+    echo "WARNING: no hay ionice en el sistema" >&2
+fi
+
+
+
+# Checks básicos:
+if [ ! -d ${BACKUP_BASE_DIR} ]; then
+    evento "ERROR: directorio destino ${BACKUP_BASE_DIR} no existe!"
+    cleanup # exit 1
+fi
+
+# Directorio con los ficheros de configuración y preeventos
+if [ ! -d ${SETTINGS_DIR} ]; then
+    evento "ERROR: el directorio de configuración ${SETTINGS_DIR} no existe!"
+    cleanup # exit 1; sin ficheros de configuración no hay nada que respaldar
+fi
+
+# una copia por cada día de la semana siendo hoy -dia_0 y hace 8 dias -dia_7.
+
+# borramos la copia más antigua (copia-dia7):
+if [ -d "${BACKUP_BASE_DIR}/${COPIA}_7" ]; then 
+    evento "Eliminando ${BACKUP_BASE_DIR}/${COPIA}_7"
+    $IONICE /bin/rm -fr "${BACKUP_BASE_DIR}/${COPIA}_7" 
+    loglastresult $? "rm: directorio eliminado correctamente." "rm: error durante el proceso"
+fi
+
+# movemos los directorios (ej. -dia_6 pasa a -dia_7, -dia_5 a -dia_6, ...); es
+# una especie de logrotate.
+for dia in 6 5 4 3 2 1;
+do
+    if [ -d "${BACKUP_BASE_DIR}/${COPIA}_${dia}" ]; then
+        evento "moviendo ${BACKUP_BASE_DIR}/${COPIA}_${dia} a ${BACKUP_BASE_DIR}/${COPIA}_$(( ${dia} + 1 ))"
+        $IONICE /bin/mv "${BACKUP_BASE_DIR}/${COPIA}_${dia}" "${BACKUP_BASE_DIR}/${COPIA}_$(( ${dia} + 1 ))"
+        loglastresult $? "mv: acción realizada correctamente" "mv: error durante la copia"
+    fi
+done
+
+# copiamos el espejo del día (-dia_0) a -dia_1 con "cp -al" (se crean los
+# directorios, se mantienen los permisos, pero todos los ficheros son enlaces
+# duros a la copia del dia).
+if [ -d "${BACKUP_BASE_DIR}/${COPIA}_0" ]; then
+    evento "copiando ${BACKUP_BASE_DIR}/${COPIA}_0 a ${BACKUP_BASE_DIR}/${COPIA}_1"
+    $IONICE /bin/cp -al "${BACKUP_BASE_DIR}/${COPIA}_0" "${BACKUP_BASE_DIR}/${COPIA}_1"
+    loglastresult $? "cp: la copia se ha realizado correctamente" "cp: error durante la copia"
+fi
+
+
+# Si hay scripts de eventos previos al backup los ejecutamos con run-parts
+# (este script se encarga de chequear si son ejecutables)
+runParts "${PREEVENTS_DIR}" "pre-respaldo" 
+
+# Finalmente, la parte más importante, realizamos la copia espejo de los
+# directorios "$DIRECTORIOS_ORIGEN"; aquellos ficheros que difieran de un
+# día para otro (por que se creen o se modifiquen) se crearán como nuevos
+# (ya no serán los mismos enlaces duros de las copias anteriores)
+evento "Inicio sincronizacion para la copia de seguridad de hoy"
+
+if [ "$VERBOSE" == "1" ]; then
+    $IONICE /usr/bin/rsync -v $OPTS_RSYNC $DIRECTORIOS_ORIGEN "${BACKUP_BASE_DIR}/${COPIA}_0/" 
+else
+    $IONICE /usr/bin/rsync $OPTS_RSYNC $DIRECTORIOS_ORIGEN "${BACKUP_BASE_DIR}/${COPIA}_0/"
+fi
+
+loglastresult $? "rsync: sincronizacion correcta." "rsync: error durante la sincronización"
+
+# Si hay scripts de eventos posteriores al backup los ejecutamos con run-parts
+# (este script se encarga de chequear si son ejecutables)
+runParts "${POSTEVENTS_DIR}" "post-respaldo" 
+
+# Borrar archivos de log con antigüedad superior a 1 mes
+evento "Eliminando archivos de log de más de un mes de antigüedad"
+find "${LOGDIR}" -ctime +30 -exec rm {} \;
+loglastresult $? "find/rm: No ha habido incidencias en la limpieza de logs antiguos" "find/rm: error durante la limpieza de logs antiguos"
+
+# Fin
+evento "$END_BACKUP_STR"
+
+rmlockfile

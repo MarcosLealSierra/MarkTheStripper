@@ -1,0 +1,102 @@
+#! /bin/bash
+# Volcar las bases de datos postgresql individualmente a ficheros
+# vim:ts=4:sw=4:et:ft=sh
+# Created: 2008-03-04
+# Copyright (c) 2008: Hilario J. Montoliu <hmontoliu@gmail.com>
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.  See http://www.gnu.org/copyleft/gpl.html for
+# the full text of the license.
+
+# configuración común
+source /etc/backup/comun.sh
+
+# configuración particular:
+# ------------------------------------
+# Directorio para el volcado de bases de datos
+DDBB_DIR="${COPIA_ACTUAL}/DDBB/"
+
+# Credenciales para mysqld
+MYSQLUSER='root'
+MYSQLPASSWD= #COMPLETAME !!!!
+
+# Credenciales para postgres
+PSQLUSER=postgres
+
+# Otras ddbb
+# ...
+
+if [ ! -d "${DDBB_DIR}" ]; then
+    mkdir -p "${DDBB_DIR}"
+fi
+
+if [ -x /sbin/pidof ]; then
+    PIDOF=/sbin/pidof
+elif [ -x /bin/pidof ]; then
+    PIDOF=/bin/pidof
+else
+    PIDOF=$(which pidof)
+fi
+
+WARNING='Aviso: no existe pid de %s - Puede deberse a que no existan bases de datos de este tipo.'
+
+evento "Inicio del volcado de bases de datos del sistema en $DDBB_DIR"
+
+# Bases de datos PostgresSQL ---------------------------------------------
+SERVICIO=postgreSQL
+if $PIDOF postmaster > /dev/null or $PIDOF postgres; then
+    
+    # Listado de bases de datos postgresSQL del servidor menos template0:
+    DDBB_LIST=$(su -c '/usr/bin/psql -lt' - $PSQLUSER | awk -F'|' '$0 ~ /\|/ && ! ($1 ~ /template/) {print $1}')
+    # Procesamos las bases de datos una a una: optimizamos la base de datos y luego hacemos el volcado.
+    for DB in ${DDBB_LIST};
+    do
+        DEST_FILE="${DDBB_DIR}/${DB}.volcado.psql.gz"
+        if [ -f "$DEST_FILE" ]; then
+             mv "${DEST_FILE}" "${DEST_FILE}.bak"
+        fi
+        evento "vacuumdb: Optimizando la base de datos postgres $DB"
+        su -c "vacuumdb --full $DB" - $PSQLUSER
+        su -c "vacuumdb --analyze $DB" - $PSQLUSER
+        evento "Iniciando volcado de $DB en $DEST_FILE"
+        su -c "/usr/bin/pg_dump -E UTF8 $DB" - $PSQLUSER | gzip -c > "${DEST_FILE}" 
+        if [ $? == 0 ]; then # si hay error cantara solo.
+       	    evento "DDBB: $DB volcado correcto"  
+            rm -f "${DEST_FILE}.bak"
+        else
+            evento "DDBB: error al realizar el volcado de $DB en $DEST_FILE"
+        fi
+        unset DEST_FILE
+    done
+else
+    SERVICIO_NO_ENCONTRADO="$(printf "$WARNING" $SERVICIO)"
+    evento "$SERVICIO_NO_ENCONTRADO"
+fi
+
+# Bases de datos MySQL
+SERVICIO=MySQL
+if $PIDOF mysqld > /dev/null ; then
+
+    # BACKUPS de las bases de datos individuales
+    for DB in $(echo 'show databases;' | mysql -N -u ${MYSQLUSER} -p"${MYSQLPASSWD}"); do
+        DEST_FILE="${DDBB_DIR}/mysql_database_${DB}.volcado.sql.gz"
+        if [ -f "$DEST_FILE" ]; then
+             mv "${DEST_FILE}" "${DEST_FILE}.bak"
+        fi
+        evento "Iniciando volcado de $DB en $DEST_FILE incl. funciones"
+        #mysqldump -hlocalhost -u"${MYSQLUSER}" -p"${MYSQLPASSWD}" --opt --routines --lock-tables "$DB" |  gzip -c > "${DEST_FILE}"
+        mysqldump -hlocalhost -u"${MYSQLUSER}" -p"${MYSQLPASSWD}" --opt --routines --single-transaction --lock-tables "$DB" |  gzip -c > "${DEST_FILE}"
+        if [ $? == 0 ]; then # si hay error cantara solo.
+       	    evento "DDBB: $DB volcado correcto"  
+            rm -f "${DEST_FILE}.bak"
+        else
+            evento "DDBB: error al realizar el volcado de $DB en $DEST_FILE"
+        fi
+        unset DEST_FILE
+    done
+else
+    SERVICIO_NO_ENCONTRADO="$(printf "$WARNING" $SERVICIO)"
+    evento "$SERVICIO_NO_ENCONTRADO"
+fi

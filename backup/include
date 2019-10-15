@@ -1,0 +1,13 @@
+# Listado de directorios a incluir en el backup
+# OJO: no poner la '/' al final.
+/etc
+/root
+/var/backups # configuraciones varias
+/var/spool/cron
+#/var/lib/postgresql # primero lento
+#/var/lib/postgresql # con este segundo rsync aseguramos el snapshot
+#/var/lib/mysql # primero lento
+#/var/lib/mysql # con este segundo rsync aseguramos el snapshot
+/home/bofh01
+/var/lib/dpkg
+#/var/www
