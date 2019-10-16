@@ -23,13 +23,19 @@ fi
 
 source functions.sh
 
+clear 
 echo -e "Choose password for root\n"
-passwd 
 
-echo -e "Choose a username: "
+until passwd; do
+    echo ""
+done
+echo -e "\n"
+
+echo -e "Choose a username: \n"
 read local_user
+echo -e "\n"
 
-echo -e "Choose an SSH Port: "
+echo -e "Choose an SSH Port: \n"
 read port
 
 system_update
@@ -42,6 +48,7 @@ install_misc
 install_monitoring
 install_local_backups
 install_modsecurity
+configure_root_user
 configure_user
 configure_grub
 configure_modsecurity_owasp
@@ -49,4 +56,5 @@ configure_apache
 configure_iptables
 change_homes_file_mode_bites
 customize_crontab
+configure_mysql
 restart_services

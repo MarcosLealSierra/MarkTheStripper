@@ -15,7 +15,7 @@ etccommiter() {
 }
 
 install_editor() {
-    apt install -y vim vim-scripts
+    apt install -y vim vim-nox vim-scripts
     update-alternatives --set editor /usr/bin/vim.basic
 }
 
@@ -43,12 +43,11 @@ install_ssh_fail2ban() {
     sed -i "s/^port.*=.*ssh$/&,$port/g" /etc/fail2ban/jail.local 
     sed -i "s/Port/Port $port/g" /etc/ssh/sshd_config
     /etc/init.d/fail2ban restart
-    iptables -nL
     etccommiter "Install and configure SSH & fail2ban"
 }
 
 install_misc() {
-    apt install -y cron ntpdate wget tmux lshw rsync
+    apt install -y apache2 mariadb-server cron ntpdate wget tmux lshw rsync
     etccommiter "Install miscellaneous pacakges"
 }
 
@@ -68,6 +67,12 @@ install_modsecurity() {
     apt install -y libapache2-mod-security2
     mv /etc/modsecurity/modsecurity.conf-recommended /etc/modsecurity/modsecurity.conf
     /etc/init.d/apache2 restart
+}
+
+configure_root_user() {
+    cp templates/rootbashrc "/root/.bashrc"
+    cp templates/.vimrc "/root/.vimrc"
+    cp -R templates/.vim "/root/.vim"
 }
 
 configure_user() {
@@ -93,10 +98,10 @@ configure_grub() {
 configure_modsecurity_owasp() {
     mkdir /etc/apache2/modsecurity.d
     git clone https://github.com/SpiderLabs/owasp-modsecurity-crs /etc/apache2/modsecurity.d
-    mv /etc/apache2/modsecurity.d/crs-setup.conf.example /etc/apache2/modsecurity.d/crs-setup.conf
-    mv /etc/apache2/modsecurity.d/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf.example \
+    cp /etc/apache2/modsecurity.d/crs-setup.conf.example /etc/apache2/modsecurity.d/crs-setup.conf
+    cp /etc/apache2/modsecurity.d/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf.example \
         /etc/apache2/modsecurity.d/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf
-    mv /etc/apache2/modsecurity.d/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf.example \
+    cp /etc/apache2/modsecurity.d/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf.example \
         /etc/apache2/modsecurity.d/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf
     cp templates/security2 /etc/apache2/mods-available/security2.conf
     modsecrec="/etc/modsecurity/modsecurity.conf"
@@ -109,11 +114,13 @@ configure_modsecurity_owasp() {
     echo "Header set X-Powered-By \"$poweredby\"" >> $modseccrs10su
     a2enmod headers
     /etc/init.d/apache2 restart
+    etccommiter "Configure modsecurity owasp"
 }
 
 configure_apache() {
     cp templates/apache /etc/apache2/apache2.conf
     /etc/init.d/apache2 restart
+    etccommiter "Configure apache2"
 }
 
 configure_iptables() {
@@ -177,8 +184,7 @@ configure_iptables() {
 
     # guardamos las tablas permanentemente (estas quedan en /etc/sysconfig/iptables; es equivalente a 
     # iptables-save > /etc/sysconfig/iptables):
-    /sbin/iptables -nL -v
-    apt-get install -y iptables-persistent
+    apt install -y iptables-persistent
     iptables-save > /etc/iptables/rules.v4
 }
 
@@ -205,6 +211,11 @@ EOF
     crontab $TMPCRONFILE
     rm $TMPCRONFILE
     fi
+}
+
+configure_mysql() {
+    mysql_secure_installation
+    cp templates/mysql /etc/mysql/my.cnf
 }
 
 restart_services() {
