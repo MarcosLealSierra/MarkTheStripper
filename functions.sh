@@ -81,6 +81,8 @@ configure_user() {
     cp templates/userbashaliases "/home/$local_user/.bash_aliases"
     cp templates/.vimrc "/home/$local_user/.vimrc"
     cp -R templates/.vim "/home/$local_user/.vim"
+    cp -R templates/Plantillas "/home/$local_user/"
+    cp -R bin "/home/$local_user/"
     mkdir "/home/$local_user/.ssh"
     cp templates/authorized_keys "/home/$local_user/.ssh/" 
     chown -R $local_user:$local_user "/home/$local_user/.vimrc" "/home/$local_user/.ssh" \
