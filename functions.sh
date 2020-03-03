@@ -75,6 +75,7 @@ configure_root_user() {
     cp -R templates/.vim "/root/.vim"
     cp templates/.tmux.conf "/root/.tmux.conf"
     cp -R templates/.tmux "/root/.tmux"
+    echo "source ~/.bashrc" >> "/root/.profile"
 }
 
 configure_user() {
@@ -93,6 +94,7 @@ configure_user() {
         "/home/$local_user/.bashrc" "/home/$local_user/.bash_aliases" \
         "/home/$local_user/.vim"
     chmod -R 0700 /home/$local_user/.ssh
+    echo "source ~/.bashrc" >> "/home/$local_user/.profile"
 }
 
 configure_grub() {
