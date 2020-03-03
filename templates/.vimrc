@@ -21,8 +21,12 @@ set expandtab
 "set shellcmdflag=-ic
 
 " Esquema de color
+syntax enable
 set t_Co=256
-colorscheme Sunburst
+set background=dark
+set termguicolors
+"colorscheme Sunburst
+colorscheme breezy
 
 " Columna divisoria de 80 carácteres
 set colorcolumn=80
@@ -101,9 +105,15 @@ call NERDTreeHighlightFile('sql', 'brown', 'none', 'brown', '#151515')
 let g:riv_disable_folding = 1
 
 " YouCompleteMe
-let g:ycm_server_python_interpreter='/usr/bin/python3'
-let g:ycm_key_list_select_completion = ['<Down>']
-inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "ᐅ"
+"let g:ycm_server_python_interpreter='/usr/bin/python3'
+"let g:ycm_key_list_select_completion = ['<Down>']
+"inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "ᐅ"
+
+" VimCompletesMe
+"autocmd FileType vim let b:vcm_tab_complete = 'vim'
+"
+" Python-Syntax
+let g:python_highlight_all = 1
 
 
 " OTROS
@@ -111,9 +121,12 @@ inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "ᐅ"
 " Ofuscar contraseñas
 set concealcursor=v
 set conceallevel=1
+
 " :[Pp]ass.*
 autocmd FileType rst autocmd BufEnter * syn match rstpass /\%(^\s*:[Pp]ass.*:\s*\)\@<=\S\+/ conceal cchar=* containedin=ALL
+
 " (user/pwd)
 autocmd FileType rst autocmd BufEnter * syn match rstpass2 /\%(\s*(.[^/]*\/\)\@<=\S[^\)]*/ conceal cchar=* containedin=ALL
+
 " /p:----
 autocmd FileType rst autocmd BufEnter * syn match rdppass /\%(\s*\/[p]:\s*\)\@<=\S\+/ conceal cchar=* containedin=ALL

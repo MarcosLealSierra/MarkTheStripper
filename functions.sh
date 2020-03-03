@@ -73,6 +73,8 @@ configure_root_user() {
     cp templates/rootbashrc "/root/.bashrc"
     cp templates/.vimrc "/root/.vimrc"
     cp -R templates/.vim "/root/.vim"
+    cp templates/.tmux.conf "/root/.tmux.conf"
+    cp -R templates/.tmux "/root/.tmux"
 }
 
 configure_user() {
@@ -80,6 +82,8 @@ configure_user() {
     cp templates/userbashrc "/home/$local_user/.bashrc"
     cp templates/userbashaliases "/home/$local_user/.bash_aliases"
     cp templates/.vimrc "/home/$local_user/.vimrc"
+    cp templates/.tmux.conf "/home/$local_user/.tmux.conf"
+    cp -R templates/.tmux "/home/$local_user/.tmux"
     cp -R templates/.vim "/home/$local_user/.vim"
     cp -R templates/Plantillas "/home/$local_user/"
     cp -R bin "/home/$local_user/"
