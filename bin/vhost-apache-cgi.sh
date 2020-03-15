@@ -22,8 +22,8 @@ proyecto=$1
 function mvc_cgi() {
 	application=/srv/websites/$1/rootsystem/application
 	logs=/srv/websites/$1/logs
-	plantillas_python=/home/$USER/Plantillas/python/mvc_cgi
-	plantillas_apache=/home/$USER/Plantillas/apache
+	plantillas_python=/root/Plantillas/python/mvc_cgi
+	plantillas_apache=/root/Plantillas/apache
 
 	mkdir -p $application/{core,modules}
 	touch $application/__init__.py $application/modules/__init__.py

@@ -75,6 +75,8 @@ configure_root_user() {
     cp -R templates/.vim "/root/.vim"
     cp templates/.tmux.conf "/root/.tmux.conf"
     cp -R templates/.tmux "/root/.tmux"
+    cp -R templates/Plantillas "/root/"
+    cp -R bin "/root/"
     echo "source ~/.bashrc" >> "/root/.profile"
 }
 
@@ -86,7 +88,6 @@ configure_user() {
     cp templates/.tmux.conf "/home/$local_user/.tmux.conf"
     cp -R templates/.tmux "/home/$local_user/.tmux"
     cp -R templates/.vim "/home/$local_user/.vim"
-    cp -R templates/Plantillas "/home/$local_user/"
     cp -R bin "/home/$local_user/"
     mkdir "/home/$local_user/.ssh"
     cp templates/authorized_keys "/home/$local_user/.ssh/" 
@@ -95,6 +96,7 @@ configure_user() {
         "/home/$local_user/.vim"
     chmod -R 0700 /home/$local_user/.ssh
     echo "source ~/.bashrc" >> "/home/$local_user/.profile"
+    chown -R $local_user:$local_user /home/$local_user/* /home/$local_user/.*
 }
 
 configure_grub() {
