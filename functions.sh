@@ -47,7 +47,7 @@ install_ssh_fail2ban() {
 }
 
 install_misc() {
-    apt install -y apache2 mariadb-server cron ntpdate wget tmux lshw rsync
+    apt install -y php apache2 mariadb-server cron ntpdate wget tmux lshw rsync
     etccommiter "Install miscellaneous pacakges"
 }
 
