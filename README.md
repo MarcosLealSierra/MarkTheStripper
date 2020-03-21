@@ -1,4 +1,4 @@
-# servers
+# Mark The Stripper
 ![License](https://img.shields.io/badge/License-GPL3-blue.svg)
 
 Table of Contents
