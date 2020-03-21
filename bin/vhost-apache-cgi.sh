@@ -35,7 +35,8 @@ function mvc_cgi() {
 	touch $logs/error.log $logs/access.log
 
 	cp $plantillas_apache/vhost_cgi.conf /etc/apache2/sites-available/$1.conf
-	sed -i -e "s/<mvc_example>/$1/g" /etc/apache2/sites-available/$1.conf
+	cp $plantillas_apache/vhost_wp.conf /etc/apache2/sites-available/$1.conf
+	sed -i -e "s/<example>/$1/g" /etc/apache2/sites-available/$1.conf
 
 	ls /etc/apache2/mods-enabled | grep "mpm_event"
 
@@ -57,4 +58,3 @@ sudo bash << EOF
 $mvc_cgi_project
 mvc_cgi $proyecto
 EOF
-

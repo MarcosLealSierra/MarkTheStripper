@@ -46,10 +46,18 @@ install_ssh_fail2ban() {
     etccommiter "Install and configure SSH & fail2ban"
 }
 
+install_php() {
+    apt install -y php7.3 php7.3-mysql php7.3-common php7.3-readline \
+        php7.3-json php7.3-imap php-imagick php7.3-curl php-common \
+        php-readline php7.3-opcache php7.3-memcached libapache2-mod-php7.3 \
+        libapache2-mod-php 
+    etccommiter "Install PHP packages"
+}
+
 install_misc() {
-    apt install -y ack php php-mysql apache2 mariadb-server cron ntpdate wget \
+    apt install -y ack apache2 mariadb-server cron ntpdate wget \
         tmux lshw rsync
-    etccommiter "Install miscellaneous pacakges"
+    etccommiter "Install miscellaneous packages"
 }
 
 install_monitoring() {

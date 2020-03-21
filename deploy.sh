@@ -48,6 +48,7 @@ install_misc
 install_monitoring
 install_local_backups
 install_modsecurity
+install_php
 configure_root_user
 configure_user
 configure_grub
