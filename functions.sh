@@ -50,7 +50,9 @@ install_php() {
     apt install -y php7.3 php7.3-mysql php7.3-common php7.3-readline \
         php7.3-json php7.3-imap php-imagick php7.3-curl php-common \
         php-readline php7.3-opcache php7.3-memcached libapache2-mod-php7.3 \
-        libapache2-mod-php 
+        libapache2-mod-php
+    a2enmod rewrite
+    /etc/init.d/apache2 restart
     etccommiter "Install PHP packages"
 }
 

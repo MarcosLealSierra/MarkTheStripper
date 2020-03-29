@@ -35,22 +35,23 @@ function mvc_cgi() {
 	touch $logs/error.log $logs/access.log
 
 	cp $plantillas_apache/vhost_cgi.conf /etc/apache2/sites-available/$1.conf
-	cp $plantillas_apache/vhost_wp.conf /etc/apache2/sites-available/$1.conf
-	sed -i -e "s/<example>/$1/g" /etc/apache2/sites-available/$1.conf
+	#cp $plantillas_apache/vhost_wp.conf /etc/apache2/sites-available/$1.conf
 
 	ls /etc/apache2/mods-enabled | grep "mpm_event"
 
 	if [ $? -eq 0 ]; then
-	a2dismod mpm_event
-	a2enmod mpm_prefork
-	a2enmod cgi
-	a2enmod rewrite
-	a2ensite $1
-	service apache2 restart
+        a2dismod mpm_event
+        a2enmod mpm_prefork
+        a2enmod cgi
+        a2ensite $1
+        service apache2 restart
 	else
-	a2ensite $1
-	service apache2 restart
+        a2ensite $1
+        service apache2 restart
 	fi
+
+	sed -i -e "s/<example>/$1/g" /etc/apache2/sites-available/$1.conf
+	service apache2 restart
 }
 
 mvc_cgi_project=$(declare -f mvc_cgi)
