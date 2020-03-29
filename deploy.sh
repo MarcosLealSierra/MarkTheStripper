@@ -24,6 +24,12 @@ fi
 source functions.sh
 
 clear 
+echo -e "Set your domain:\n"
+read domain
+IP=$(hostname -I | awk '{print $1 " "}')
+echo "${IP}     ${HOSTNAME}.${domain} ${HOSTNAME}" >> /etc/hosts
+
+
 echo -e "Choose password for root\n"
 
 until passwd; do
@@ -40,6 +46,7 @@ read port
 
 system_update
 etckeeper_init
+set_hosts
 install_editor
 install_version_control
 install_compilation_environment

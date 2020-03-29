@@ -57,7 +57,7 @@ install_php() {
 }
 
 install_misc() {
-    apt install -y ack apache2 mariadb-server cron ntpdate wget \
+    apt install -y ack apache2 mariadb-server cron ntpdate wget tree sendmail \
         tmux lshw rsync
     etccommiter "Install miscellaneous packages"
 }
