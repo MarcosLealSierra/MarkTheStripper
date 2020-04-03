@@ -30,7 +30,7 @@ Options:
 }
 
 function deploy() {
-    read -p 'virtualhost or project name' PROJECT
+    read -p 'virtualhost or project name: ' PROJECT
 	application=/srv/websites/$PROJECT/rootsystem/application
 	logs=/srv/websites/$PROJECT/logs
 	plantillas_python=/root/Plantillas/python/mvc_cgi
@@ -61,7 +61,7 @@ function deploy() {
     touch $logs/error.log $logs/access.log
 	sed -i -e "s/<example>/$PROJECT/g" /etc/apache2/sites-available/$PROJECT.conf
     a2ensite $PROJECT
-	service apache2 restart
+	/etc/init.d/apache2 restart
 }
 
 if [[ $EUID -eq 0 ]]; then
