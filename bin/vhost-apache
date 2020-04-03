@@ -1,0 +1,82 @@
+#! /bin/bash
+
+# Deploy virtualhost for Apache2 Server
+# Copyright © 2018 Marcos Leal Sierra <marcoslealsierra@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+function usage() {
+    echo "Usage: $(basename $0) [OPTIONS]
+
+Deploy virtualhost for Apache2 Server
+    
+Example: $(basename $0) -t python-cgi myproject
+
+Options:
+    -h  --help      show this help text
+    -t  --type      set virtualhost type"
+}
+
+function deploy() {
+    read -p 'virtualhost or project name' PROJECT
+	application=/srv/websites/$PROJECT/rootsystem/application
+	logs=/srv/websites/$PROJECT/logs
+	plantillas_python=/root/Plantillas/python/mvc_cgi
+	plantillas_apache=/root/Plantillas/apache
+
+    if [[ $1 == "python" ]]; then
+        mkdir -p $application/{core,modules}
+        touch $application/__init__.py $application/modules/__init__.py
+        cp $plantillas_python/settings.py $application/settings.py
+        cp $plantillas_python/config.py $application/config.py
+        cp $plantillas_python/xfc.py $application/xfc.py
+        cp $plantillas_apache/vhost_cgi.conf /etc/apache2/sites-available/$PROJECT.conf
+
+        ls /etc/apache2/mods-enabled | grep "mpm_event"
+
+        if [ $? -eq 0 ]; then
+            a2dismod mpm_event
+            a2enmod mpm_prefork
+            a2enmod cgi
+        fi
+    elif [[ $1 == "wp" ]]; then
+        cp $plantillas_apache/vhost_wp.conf /etc/apache2/sites-available/$PROJECT.conf
+    else
+        echo "type $1 not recognized [python, wp]"
+    fi
+
+    mkdir -p $logs
+    touch $logs/error.log $logs/access.log
+	sed -i -e "s/<example>/$PROJECT/g" /etc/apache2/sites-available/$PROJECT.conf
+    a2ensite $PROJECT
+	service apache2 restart
+}
+
+if [[ $EUID -eq 0 ]]; then
+    case "$1" in
+        -h|--help)
+            usage
+            ;;
+        -t|--type)
+            shift
+            deploy $1
+            ;;
+        *)
+            echo "Option $1 not recognized"
+            usage
+    esac
+else
+    echo "You need to be root"
+fi
