@@ -100,6 +100,7 @@ if [ -x /usr/bin/dircolors ]; then
     alias fgrep='fgrep --color=auto'
     alias egrep='egrep --color=auto'
     alias restart-apache='systemctl restart apache2.service'
+    alias limpiar-apt='apt autoremove && apt autoclean'
 fi
 
 # Colored GCC warnings and errors

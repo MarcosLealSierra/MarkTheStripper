@@ -76,3 +76,5 @@ LogFormat "%{User-agent}i" agent
 
 IncludeOptional conf-enabled/*.conf
 IncludeOptional sites-enabled/*.conf
+
+ServerName  localhost
