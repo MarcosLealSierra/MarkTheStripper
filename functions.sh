@@ -101,12 +101,13 @@ configure_user() {
     cp -R templates/.tmux "/home/$local_user/.tmux"
     cp -R templates/.vim "/home/$local_user/.vim"
     mkdir "/home/$local_user/.ssh"
+    chmod "/home/$local_user/.ssh 700"
     cp templates/authorized_keys "/home/$local_user/.ssh/" 
-    chown -R $local_user:$local_user "/home/$local_user/.vimrc" "/home/$local_user/.ssh" \
-        "/home/$local_user/.bashrc" "/home/$local_user/.bash_aliases" \
-        "/home/$local_user/.vim"
+    #chown -R $local_user:$local_user "/home/$local_user/.vimrc" "/home/$local_user/.ssh" \
+        #"/home/$local_user/.bashrc" "/home/$local_user/.bash_aliases" \
+        #"/home/$local_user/.vim"
     echo "source ~/.bashrc" >> "/home/$local_user/.profile"
-    chown -R $local_user:$local_user /home/$local_user/* /home/$local_user/.*
+    chown -R $local_user:$local_user /home/$local_user
 }
 
 configure_grub() {
@@ -127,8 +128,8 @@ configure_modsecurity_owasp() {
     modsecrec="/etc/modsecurity/modsecurity.conf"
     sed s/SecRuleEngine\ DetectionOnly/SecRuleEngine\ On/g $modsecrec > /tmp/salida
     mv /tmp/salida /etc/modsecurity/modsecurity.conf
-    echo -n "Firma servidor: "; read firmaserver
-    echo -n "Powered: "; read poweredby
+    read -p "Firma servidor: " firmaserver
+    read -p "Powered: " poweredby
     modseccrs10su="/etc/apache2/modsecurity.d/crs-setup.conf"
     echo "SecServerSignature \"$firmaserver\"" >> $modseccrs10su
     echo "Header set X-Powered-By \"$poweredby\"" >> $modseccrs10su

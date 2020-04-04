@@ -25,17 +25,19 @@ source functions.sh
 
 clear 
 read -p "Set your domain: " domain
-read -sp "Choose password for root" rootpasswd
+read -p "Choose password for root: " rootpasswd
 read -p "Set your username: " local_user
 read -p "Choose an SSH Port: " port
 
 IP=$(hostname -I | awk '{print $1 " "}')
 echo "${IP}     ${HOSTNAME}.${domain} ${HOSTNAME}" >> /etc/hosts
 
-echo -e $rootpasswd | passwd
+echo "root:$rootpasswd" | chpasswd
 
-system_update
+configure_user
+configure_root_user
 etckeeper_init
+system_update
 set_hosts
 install_editor
 install_version_control
@@ -46,8 +48,6 @@ install_monitoring
 install_local_backups
 install_modsecurity
 install_php
-configure_root_user
-configure_user
 configure_grub
 configure_modsecurity_owasp
 configure_apache
