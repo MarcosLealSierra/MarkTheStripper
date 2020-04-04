@@ -17,32 +17,22 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 if [[ $(id -u) -ne 0 ]]; then
-    echo "Solo root puede ejecutar este script"
+    echo "Need to be root"
     exit 1
 fi
 
 source functions.sh
 
 clear 
-echo -e "Set your domain:\n"
-read domain
+read -p "Set your domain: " domain
+read -sp "Choose password for root" rootpasswd
+read -p "Set your username: " local_user
+read -p "Choose an SSH Port: " port
+
 IP=$(hostname -I | awk '{print $1 " "}')
 echo "${IP}     ${HOSTNAME}.${domain} ${HOSTNAME}" >> /etc/hosts
 
-
-echo -e "Choose password for root\n"
-
-until passwd; do
-    echo ""
-done
-echo -e "\n"
-
-echo -e "Choose a username: \n"
-read local_user
-echo -e "\n"
-
-echo -e "Choose an SSH Port: \n"
-read port
+echo -e $rootpasswd | passwd
 
 system_update
 etckeeper_init

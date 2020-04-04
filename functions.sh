@@ -42,6 +42,7 @@ install_ssh_fail2ban() {
     sed -i 's/^bantime.*=.*$/bantime = 3600/g' /etc/fail2ban/jail.local 
     sed -i "s/^port.*=.*ssh$/&,$port/g" /etc/fail2ban/jail.local 
     sed -i "s/Port/Port $port/g" /etc/ssh/sshd_config
+    sed -i "s/AllowUsers/AllowUsers $local_user" /etc/ssh/sshd_config
     /etc/init.d/fail2ban restart
     etccommiter "Install and configure SSH & fail2ban"
 }
@@ -99,13 +100,11 @@ configure_user() {
     cp templates/.tmux.conf "/home/$local_user/.tmux.conf"
     cp -R templates/.tmux "/home/$local_user/.tmux"
     cp -R templates/.vim "/home/$local_user/.vim"
-    cp -R bin "/home/$local_user/"
     mkdir "/home/$local_user/.ssh"
     cp templates/authorized_keys "/home/$local_user/.ssh/" 
     chown -R $local_user:$local_user "/home/$local_user/.vimrc" "/home/$local_user/.ssh" \
         "/home/$local_user/.bashrc" "/home/$local_user/.bash_aliases" \
         "/home/$local_user/.vim"
-    chmod -R 0700 /home/$local_user/.ssh
     echo "source ~/.bashrc" >> "/home/$local_user/.profile"
     chown -R $local_user:$local_user /home/$local_user/* /home/$local_user/.*
 }
