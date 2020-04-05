@@ -35,7 +35,7 @@ set colorcolumn=80
 set encoding=utf-8
 
 " Tabulación para archivos HTML
-autocmd BufRead,BufNewFile *.htm,*.html setlocal tabstop=2 shiftwidth=2 softtabstop=2
+autocmd BufRead,BufNewFile *.htm,*.html,*.css,*.js setlocal tabstop=2 shiftwidth=2 softtabstop=2
 
 " Corrector ortográfico y ajuste de líneas para los mensajes de commit de git
 "set smartindent
@@ -75,7 +75,7 @@ map <C-n> :NERDTreeToggle<CR>
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 let g:NERDTreeDirArrowExpandable = '▸'
 let g:NERDTreeDirArrowCollapsible = '▾'
-let NERDTreeMapOpenInTab = '\r'
+let NERDTreeMapOpenInTab = 't'
 
 " NERDTree File highlighting
 function! NERDTreeHighlightFile(extension, fg, bg, guifg, guibg)
@@ -115,8 +115,33 @@ let g:riv_disable_folding = 1
 " Python-Syntax
 let g:python_highlight_all = 1
 
+" Emmet
+" Enable emmet just for html/css
+let g:user_emmet_install_global = 0
+autocmd FileType html,css EmmetInstall
+" Change the hotkey to complete emmet shorcut
+let g:user_emmet_leader_key = '<c-e>'
+" tow spaces in emmet completition
+let g:user_emmet_settings = {
+      \  'html' : {
+      \    'indentation' : '  '
+      \  },
+      \  'css' : {
+      \    'indentation' : '  '
+      \  }
+      \}
 
-" OTROS
+" SimpylFold
+" Enabl folding
+set foldmethod=indent
+set foldlevel=99
+set nu
+set encoding=utf-8
+" Enable folding with the spacebar
+nnoremap <space> za
+let g:SimpylFold_docstring_preview=1
+
+"OTROS
 
 " Ofuscar contraseñas
 set concealcursor=v
