@@ -1,6 +1,5 @@
 #! /bin/bash
 
-# Deploy and configure server. 
 # Copyright © 2019 Marcos Leal Sierra
 
 # This program is free software: you can redistribute it and/or modify
@@ -23,11 +22,20 @@ fi
 
 source functions.sh
 
-clear 
-read -p "Set your domain: " domain
-read -p "Choose password for root: " rootpasswd
-read -p "Set your username: " local_user
-read -p "Choose an SSH Port: " port
+clear
+
+while [[ -z $domain ]]; do
+    read -p "Set your domain: " domain
+done
+while [[ -z $rootpasswd ]]; do
+    read -p "Set root passwd: " rootpasswd
+done
+while [[ -z $local_user ]]; do
+    read -p "Set your username: " local_user
+done
+while [[ -z $port ]]; do
+    read -p "Set an SSH port: " port
+done
 
 IP=$(hostname -I | awk '{print $1 " "}')
 echo "${IP}     ${HOSTNAME}.${domain} ${HOSTNAME}" >> /etc/hosts

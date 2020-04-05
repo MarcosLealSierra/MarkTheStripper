@@ -1,5 +1,21 @@
 #! /bin/bash
 
+# Copyright © 2019 Marcos Leal Sierra
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
 system_update() {
     apt update && apt upgrade -y
 }
@@ -42,7 +58,7 @@ install_ssh_fail2ban() {
     sed -i 's/^bantime.*=.*$/bantime = 3600/g' /etc/fail2ban/jail.local 
     sed -i "s/^port.*=.*ssh$/&,$port/g" /etc/fail2ban/jail.local 
     sed -i "s/Port/Port $port/g" /etc/ssh/sshd_config
-    sed -i "s/AllowUsers/AllowUsers $local_user" /etc/ssh/sshd_config
+    sed -i "s/AllowUsers/AllowUsers $local_user/g" /etc/ssh/sshd_config
     /etc/init.d/fail2ban restart
     etccommiter "Install and configure SSH & fail2ban"
 }
@@ -101,11 +117,8 @@ configure_user() {
     cp -R templates/.tmux "/home/$local_user/.tmux"
     cp -R templates/.vim "/home/$local_user/.vim"
     mkdir "/home/$local_user/.ssh"
-    chmod "/home/$local_user/.ssh 700"
+    chmod 700 "/home/$local_user/.ssh"
     cp templates/authorized_keys "/home/$local_user/.ssh/" 
-    #chown -R $local_user:$local_user "/home/$local_user/.vimrc" "/home/$local_user/.ssh" \
-        #"/home/$local_user/.bashrc" "/home/$local_user/.bash_aliases" \
-        #"/home/$local_user/.vim"
     echo "source ~/.bashrc" >> "/home/$local_user/.profile"
     chown -R $local_user:$local_user /home/$local_user
 }
@@ -128,8 +141,12 @@ configure_modsecurity_owasp() {
     modsecrec="/etc/modsecurity/modsecurity.conf"
     sed s/SecRuleEngine\ DetectionOnly/SecRuleEngine\ On/g $modsecrec > /tmp/salida
     mv /tmp/salida /etc/modsecurity/modsecurity.conf
-    read -p "Firma servidor: " firmaserver
-    read -p "Powered: " poweredby
+    while [[ -z $firmaserver ]]; do 
+        read -p "Firma servidor: " firmaserver
+    done
+    while [[ -z $poweredby ]]; do 
+        read -p "Powered: " poweredby
+    done
     modseccrs10su="/etc/apache2/modsecurity.d/crs-setup.conf"
     echo "SecServerSignature \"$firmaserver\"" >> $modseccrs10su
     echo "Header set X-Powered-By \"$poweredby\"" >> $modseccrs10su
