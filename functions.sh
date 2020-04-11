@@ -104,6 +104,7 @@ configure_root_user() {
     cp templates/.tmux.conf "/root/.tmux.conf"
     cp -R templates/.tmux "/root/.tmux"
     cp -R templates/Plantillas "/root/"
+    cp -R templates/bash_completion.d "/etc/bash_completion.d"
     cp -R bin "/root/"
     echo "source ~/.bashrc" >> "/root/.profile"
 }

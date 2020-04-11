@@ -27,7 +27,7 @@ function usage() {
 
 Deploy virtualhost for Apache2 Server
     
-Example: $(basename $0) -t python-cgi myproject
+Example: $(basename $0) -t python
 
 Options:
     -h  --help      show this help text
