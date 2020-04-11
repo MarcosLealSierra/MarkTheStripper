@@ -13,12 +13,12 @@ def find(name, path):
             return os.path.join(root, name)
 
 proyecto = "{}".format(argv[1]).replace("/", "").replace(" ", "")
-target = find(proyecto, '/home/mleal/src')
+target = find(proyecto, '/srv/websites')
 application = "{}/rootsystem/application".format(target)
 modules = "{}/modules".format(application)
 static= "{}/rootsystem/static".format(target)
 core = "{}/core".format(application)
-logs = "/home/mleal/src/proyectos/{}/logs".format(proyecto)
+logs = "/srv/websites/{}/logs".format(proyecto)
 panel = "tmux new-window -t {} -n seccion".format(proyecto)
 plogs = "cd {}; tail -f error.log | grep -oP '(?<=AH01215:).*'".format(logs)
 vim = "cd {}; vim ."
