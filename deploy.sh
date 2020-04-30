@@ -60,7 +60,7 @@ configure_grub
 configure_modsecurity_owasp
 configure_apache
 configure_iptables
-change_homes_file_mode_bites
+#change_homes_file_mode_bites
 customize_crontab
 configure_mysql
 restart_services

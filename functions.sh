@@ -75,7 +75,7 @@ install_php() {
 
 install_misc() {
     apt install -y ack apache2 mariadb-server cron ntpdate wget tree sendmail \
-        tmux lshw rsync man
+        tmux lshw rsync python3-mysqldb man curl
     etccommiter "Install miscellaneous packages"
 }
 
@@ -227,11 +227,11 @@ configure_iptables() {
     iptables-save > /etc/iptables/rules.v4
 }
 
-change_homes_file_mode_bites() {
-    chmod -R 0700 /home/* /root;
-    sed -i 's/DIR_MODE=0755/DIR_MODE=0700/' /etc/adduser.conf;
-    etccommiter "set homes file mode bites to 0700"
-}
+#change_homes_file_mode_bites() {
+    #chmod -R 0700 /home/* /root;
+    #sed -i 's/DIR_MODE=0755/DIR_MODE=0700/' /etc/adduser.conf;
+    #etccommiter "set homes file mode bites to 0700"
+#}
 
 customize_crontab() {
     if ! ( crontab -l | grep -q ntpdate ); then
