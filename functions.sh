@@ -98,11 +98,11 @@ install_modsecurity() {
 }
 
 configure_root_user() {
-    cp templates/rootbashrc "/root/.bashrc"
-    cp templates/.vimrc "/root/.vimrc"
-    cp -R templates/.vim "/root/.vim"
-    cp templates/.tmux.conf "/root/.tmux.conf"
-    cp -R templates/.tmux "/root/.tmux"
+    cp templates/shell/.bashrc_root "/root/.bashrc"
+    cp templates/shell/.vimrc "/root/.vimrc"
+    cp -R templates/shell/.vim "/root/.vim"
+    cp templates/shell/.tmux.conf "/root/.tmux.conf"
+    cp -R templates/shell/.tmux "/root/.tmux"
     cp -R templates/Plantillas "/root/"
     cp -R templates/bash_completion.d "/etc/bash_completion.d"
     cp -R bin "/root/"
@@ -111,12 +111,12 @@ configure_root_user() {
 
 configure_user() {
     adduser $local_user
-    cp templates/userbashrc "/home/$local_user/.bashrc"
-    cp templates/userbashaliases "/home/$local_user/.bash_aliases"
-    cp templates/.vimrc "/home/$local_user/.vimrc"
-    cp templates/.tmux.conf "/home/$local_user/.tmux.conf"
-    cp -R templates/.tmux "/home/$local_user/.tmux"
-    cp -R templates/.vim "/home/$local_user/.vim"
+    cp templates/shell/.bashrc_user "/home/$local_user/.bashrc"
+    cp templates/shell/.bashrc_aliases "/home/$local_user/.bash_aliases"
+    cp templates/shell/.vimrc "/home/$local_user/.vimrc"
+    cp templates/shell/.tmux.conf "/home/$local_user/.tmux.conf"
+    cp -R templates/shell/.tmux "/home/$local_user/.tmux"
+    cp -R templates/shell/.vim "/home/$local_user/.vim"
     mkdir "/home/$local_user/.ssh"
     chmod 700 "/home/$local_user/.ssh"
     cp templates/authorized_keys "/home/$local_user/.ssh/" 
