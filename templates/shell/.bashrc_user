@@ -96,4 +96,8 @@ export VISUAL=vim
 export EDITOR=${VISUAL}
 
 # Carga de alias y funciones
+source ~/.bash_functions
 source ~/.bash_aliases
+
+# Variables eBM
+source ~/.bashrc_ebm

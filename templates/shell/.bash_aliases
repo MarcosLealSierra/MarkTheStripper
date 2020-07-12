@@ -1,9 +1,21 @@
 # Apt
 alias actualizar='sudo apt update && sudo apt upgrade'
+alias actualizables='sudo apt list --upgradable -a'
 alias limpiar-apt='sudo apt autoremove --purge && sudo apt autoclean'
 
 # Files
 alias rmpyc='find . -name "*.pyc" -type f -delete -print'
+alias rmappletrash='find . -name "*.DS_Store" -type f -delete -print'
+
+# Firefox
+alias firefox50='/home/mleal/Otros/firefox50/./firefox &'
+
+# Git
+alias firma-eBM='echo -e "-- Marcos Leal Sierra <mleal@ebmproyectos.com>"'
+alias firma='echo -e "-- Marcos Leal Sierra <marcoslealsierra90@gmail.com>"'
+
+# Imágenes
+alias ver='shotwell'
 
 # Network
 alias gip='wget http://ipinfo.io/ip -qO -'
@@ -28,6 +40,27 @@ fi
 # Python
 alias httpserver="python3 -m http.server"
 
+# Rutas
+alias docu='cd /home/mleal/src/doc'
+alias docu-perelin002='cd /home/mleal/src/doc/00ebmproyectos/ran/perelin002'
+alias accesos='cd /home/mleal/src/accesos'
+alias otros='cd /home/mleal/Otros'
+
 # Services
 alias restart-apache='sudo systemctl restart apache2.service'
 alias restart-mysql='sudo systemctl restart mariadb.service'
+
+# SSH
+alias marcoslealsierra.com='ssh -p 7289 marcos@165.22.81.152'
+
+# sudo
+alias sudo_su='sudo su -l'
+
+# TeamViewer
+alias restart-teamviewer='sudo bash ~/Otros/teamviewer/teamviewer_clean.sh restart'
+
+# Timestamp
+alias timestamp='while read -r line; do echo "$(date "+%T %Y-%m-%d") $line"; done'
+
+# VirtualBox
+alias compactwin10='vboxmanage modifymedium --compact "/home/mleal/VirtualBox VMs/Windows 10/Windows 10.vdi"'
