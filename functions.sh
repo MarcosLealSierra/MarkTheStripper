@@ -158,6 +158,7 @@ configure_modsecurity_owasp() {
 
 configure_apache() {
     cp templates/apache /etc/apache2/apache2.conf
+    cp templates/logrotate.d/websites /etc/logrotate.d/websites
     /etc/init.d/apache2 restart
     etccommiter "Configure apache2"
 }
