@@ -23,6 +23,7 @@ endfunction
 let s:script_path = tolower(resolve(expand('<sfile>:p:h')))
 
 let s:filetype_overrides = {
+      \ 'coc-explorer':  [ 'CoC Explorer', '' ],
       \ 'defx':  ['defx', '%{b:defx.paths[0]}'],
       \ 'fugitive': ['fugitive', '%{airline#util#wrap(airline#extensions#branch#get_head(),80)}'],
       \ 'gundo': [ 'Gundo', '' ],
@@ -165,6 +166,11 @@ function! airline#extensions#load()
     call add(s:loaded_ext, 'gina')
   endif
 
+  if get(g:, 'fern_loaded', 0) && get(g:, 'airline#extensions#fern#enabled', 1)
+    call airline#extensions#fern#init(s:ext)
+    call add(s:loaded_ext, 'fern')
+  endif
+
   if exists(':NetrwSettings')
     call airline#extensions#netrw#init(s:ext)
     call add(s:loaded_ext, 'netrw')
@@ -174,6 +180,12 @@ function! airline#extensions#load()
   if exists(':FZF') && get(g:, 'airline#extensions#fzf#enabled', 1)
     call airline#extensions#fzf#init(s:ext)
     call add(s:loaded_ext, 'fzf')
+  endif
+
+  " Vim-CMake buffers are also terminal buffers, so this must be above term.
+  if get(g:, 'loaded_cmake', 0) && get(g:, 'airline#extensions#vimcmake#enabled', 1)
+    call airline#extensions#vimcmake#init(s:ext)
+    call add(s:loaded_ext, 'vimcmake')
   endif
 
   if (has("terminal") || has('nvim')) &&
@@ -325,6 +337,12 @@ function! airline#extensions#load()
     call add(s:loaded_ext, 'lsp')
   endif
 
+  if (get(g:, 'airline#extensions#nvimlsp#enabled', 1)
+        \ && exists(':LspInstallInfo'))
+    call airline#extensions#nvimlsp#init(s:ext)
+    call add(s:loaded_ext, 'nvimlsp')
+  endif
+
   if (get(g:, 'airline#extensions#coc#enabled', 1) && exists(':CocCommand'))
     call airline#extensions#coc#init(s:ext)
     call add(s:loaded_ext, 'coc')
@@ -370,7 +388,7 @@ function! airline#extensions#load()
     call add(s:loaded_ext, 'promptline')
   endif
 
-  if get(g:, 'airline#extensions#nrrwrgn#enabled', 1) && exists(':NR') == 2
+  if get(g:, 'airline#extensions#nrrwrgn#enabled', 1) && get(g:, 'loaded_nrrw_rgn', 0)
       call airline#extensions#nrrwrgn#init(s:ext)
     call add(s:loaded_ext, 'nrrwrgn')
   endif
@@ -431,6 +449,11 @@ function! airline#extensions#load()
   if get(g:, 'airline#extensions#searchcount#enabled', 1) && exists('*searchcount')
     call airline#extensions#searchcount#init(s:ext)
     call add(s:loaded_ext, 'searchcount')
+  endif
+
+  if get(g:, 'loaded_battery', 0) && get(g:, 'airline#extensions#battery#enabled', 0)
+    call airline#extensions#battery#init(s:ext)
+    call add(s:loaded_ext, 'battery')
   endif
 
   if !get(g:, 'airline#extensions#disable_rtp_load', 0)

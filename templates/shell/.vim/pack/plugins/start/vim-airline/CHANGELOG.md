@@ -13,6 +13,10 @@ This is the Changelog for the vim-airline project.
     - [fzf.vim](https://github.com/junegunn/fzf.vim) support
     - [OmniSharp](https://github.com/OmniSharp/omnisharp-vim) support
     - [searchcount](https://vim-jp.org/vimdoc-en/eval.html#searchcount())  support
+    - [fern.vim](https://github.com/lambdalisue/fern.vim) support
+    - [Vim-CMake](https://github.com/cdelledonne/vim-cmake) support
+    - [battery.vim](https://github.com/lambdalisue/battery.vim) support
+    - [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig) support
 - Improvements
   - git branch can also be displayed using [gina.vim](https://github.com/lambdalisue/gina.vim)
   - coc extensions can also show additional status messages
@@ -20,6 +24,7 @@ This is the Changelog for the vim-airline project.
 - Other
   - Introduce Vim script static analysis using [reviewdog](https://github.com/reviewdog/action-vint)
   - Added multiple Vim versions to unit tests using Travis CI
+  - Added option to show short paths in the status line
 
 ## [0.11] - 2019-11-10
 - New features

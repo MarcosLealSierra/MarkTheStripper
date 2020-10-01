@@ -220,7 +220,9 @@ values):
   (for section a and b): >
 
   let g:airline_filetype_overrides = {
+      \ 'coc-explorer':  [ 'CoC Explorer', '' ],
       \ 'defx':  ['defx', '%{b:defx.paths[0]}'],
+      \ 'fugitive': ['fugitive', '%{airline#util#wrap(airline#extensions#branch#get_head(),80)}'],
       \ 'gundo': [ 'Gundo', '' ],
       \ 'help':  [ 'Help', '%f' ],
       \ 'minibufexpl': [ 'MiniBufExplorer', '' ],
@@ -229,6 +231,7 @@ values):
       \ 'vim-plug': [ 'Plugins', '' ],
       \ 'vimfiler': [ 'vimfiler', '%{vimfiler#get_status_string()}' ],
       \ 'vimshell': ['vimshell','%{vimshell#get_status_string()}'],
+      \ 'vaffle' : [ 'Vaffle', '%{b:vaffle.dir}' ],
       \ }
 <
 * defines whether the preview window should be excluded from have its window
@@ -287,6 +290,10 @@ values):
   To force updating the tabline on mode changes, call `airline#check_mode()`
   in your custom statusline setting: `:set stl=%!airline#check_mode(winnr())`
   will correctly update the tabline on mode changes.
+
+* Display a short path in statusline: >
+  let g:airline_stl_path_style = 'short'
+>
 =============================================================================
 COMMANDS                                                  *airline-commands*
 
@@ -475,6 +482,13 @@ ale <https://github.com/dense-analysis/ale>
 <
 * ale close_lnum_symbol >
   let airline#extensions#ale#close_lnum_symbol = ')'
+
+-------------------------------------                      *airline-battery*
+vim-battery <https://github.com/lambdalisue/battery.vim>
+
+* enable/disable battery integration >
+  let g:airline#extensions#battery#enabled = 1
+<  default: 0
 
 -------------------------------------                      *airline-bookmark*
 vim-bookmark <https://github.com/MattesGroeger/vim-bookmarks>
@@ -722,6 +736,16 @@ eclim <https://eclim.org>
   |airline-syntastic| extension. >
   let g:airline#extensions#eclim#enabled = 1
 
+-------------------------------------                 	      *airline-fern*
+fern.vim <https://github.com/lambdalisue/fern.vim>
+
+Airline displays the fern.vim specific statusline.
+(for details, see the help of fern.vim)
+
+* enable/disable bufferline integration >
+  let g:airline#extensions#fern#enabled = 1
+<  default: 1
+
 -------------------------------------                  *airline-fugitiveline*
 This extension hides the fugitive://**// part of the buffer names, to only
 show the file name as if it were in the current working tree.
@@ -823,6 +847,10 @@ localsearch <https://github.com/mox-mox/vim-localsearch>
 * enable/disable localsearch indicator integration >
   let g:airline#extensions#localsearch#enabled = 1
 
+* show only when localsearch is off (shows 'GS' denoting GlobalSearch)
+  (this option is set to 0 by default) >
+  let g:airline#extensions#localsearch#enabled = 1
+
 -------------------------------------                    *airline-lsp*
 lsp <https://github.com/prabirshrestha/vim-lsp>
 
@@ -864,7 +892,7 @@ using the |'NerdTreeStatusline'| variable (for details, see the help of
 NerdTree)
 
 * enable/disable nerdtree's statusline integration >
-  let g:airline#extensions#nerdtree_status = 1
+  let g:airline#extensions#nerdtree_statusline = 1
 <  default: 1
 
 -------------------------------------                      *airline-nrrwrgn*
@@ -872,6 +900,18 @@ NrrwRgn <https://github.com/chrisbra/NrrwRgn>
 
 * enable/disable NrrwRgn integration >
   let g:airline#extensions#nrrwrgn#enabled = 1
+
+-------------------------------------                    *airline-nvimlsp*
+nvimlsp <https://github.com/neovim/nvim-lsp>
+
+* enable/disable nvimlsp integration >
+  let g:airline#extensions#nvimlsp#enabled = 1
+
+* nvimlsp error_symbol >
+  let airline#extensions#nvimlsp#error_symbol = 'E:'
+<
+* nvimlsp warning >
+  let airline#extensions#nvimlsp#warning_symbol = 'W:'
 
 -------------------------------------                    *airline-obsession*
 vim-obsession <https://github.com/tpope/vim-obsession>
@@ -1190,6 +1230,30 @@ Note: Not displayed if the number of tabs is less than 1
 
   let g:airline#extensions#tabline#formatter = 'short_path'
 
+* defines the customized format() function to display tab title in tab mode. >
+  let g:airline#extensions#tabline#tabtitle_formatter = 'MyTabTitleFormatter'
+<
+  Then define the MyTabTitleFormatter() function in your vimrc. >
+    function MyTabTitleFormatter(n)
+      let buflist = tabpagebuflist(a:n)
+      let winnr = tabpagewinnr(a:n)
+      let bufnr = buflist[winnr - 1]
+      let winid = win_getid(winnr, a:n)
+      let title = bufname(bufnr)
+
+      if empty(title)
+        if getqflist({'qfbufnr' : 0}).qfbufnr == bufnr
+          let title = '[Quickfix List]'
+        elseif winid && getloclist(winid, {'qfbufnr' : 0}).qfbufnr == bufnr
+          let title = '[Location List]'
+        else
+          let title = '[No Name]'
+        endif
+      endif
+
+      return title
+    endfunction
+
 * configure the minimum number of buffers needed to show the tabline. >
   let g:airline#extensions#tabline#buffer_min_count = 0
 <
@@ -1300,6 +1364,12 @@ vimagit <https://github.com/jreybert/vimagit>
 
 * enable/disable vimagit integration >
   let g:airline#extensions#vimagit#enabled = 1
+<
+-------------------------------------                    *airline-vimcmake*
+Vim-CMake <https://github.com/cdelledonne/vim-cmake>
+
+* enable/disable Vim-CMake integration >
+  let g:airline#extensions#vimcmake#enabled = 1
 <
 -------------------------------------                      *airline-vimtex*
 vimtex <https://github.com/lervag/vimtex>
@@ -1451,6 +1521,9 @@ vim-windowswap <https://github.com/wesQ3/vim-windowswap>
   " e.g. 1,042 in English and 1.042 in German locale
   let g:airline#extensions#wordcount#formatter = 'default'
 
+  " enable reading time formatter
+  let g:airline#extensions#wordcount#enabled = 'readingtime'
+
   " here is how you can define a 'foo' formatter:
   " create a file in autoload/airline/extensions/wordcount/formatters/
   " called foo.vim, which defines the following function signature:
@@ -1533,7 +1606,7 @@ Main features and default mappings of this extension are:
   let g:xtabline_alt_action = "buffer #"
 
 Note: Make sure to also enable >
-  :let g:airline_extensions#tabline#show_buffers = 1
+  :let g:airline#extensions#tabline#show_buffers = 1
 otherwise the tabline might not actually be displayed correctly (see
 |airline-tabline|)
 
@@ -1646,7 +1719,8 @@ And the following are defined for their respective extensions:
 
 `ale_error_count` `ale_warning_count` `branch` `eclim` `hunks`
 `languageclient_error_count` `languageclient_warning_count` `lsp_error_count`
-`lsp_warning_count` `neomake_error_count` `neomake_warning_count` `obsession`
+`lsp_warning_count``neomake_error_count` `neomake_warning_count`
+`nvimlsp_error_count` `nvimlsp_warning_count` `obsession`
 `syntastic-warn` `syntastic-err` `tagbar` `whitespace` `windowswap`
 `ycm_error_count` `ycm_warning_count`
 

@@ -188,6 +188,9 @@ vim-airline integrates with a variety of plugins out of the box.  These extensio
 #### [LanguageClient][57]
 ![image](https://user-images.githubusercontent.com/9622/45275524-52f45c00-b48b-11e8-8b83-a66240b10747.gif)
 
+#### [Vim-CMake][60]
+![image](https://user-images.githubusercontent.com/24732205/87788512-c876a380-c83d-11ea-9ee3-5f639f986a8f.png)
+
 ## Extras
 
 vim-airline also supplies some supplementary stand-alone extensions.  In addition to the tabline extension mentioned earlier, there is also:
@@ -196,7 +199,7 @@ vim-airline also supplies some supplementary stand-alone extensions.  In additio
 ![image](https://f.cloud.github.com/assets/306502/962401/2a75385e-04ef-11e3-935c-e3b9f0e954cc.png)
 
 ### statusline on top
-The statusline can alternatively by drawn on top, making room for other plugins to use the statusline:
+The statusline can alternatively be drawn on top, making room for other plugins to use the statusline:
 The example shows a custom statusline setting, that imitates Vims default statusline, while allowing
 to call custom functions.  Use `:let g:airline_statusline_ontop=1` to enable it.
 
@@ -353,3 +356,4 @@ If you are interested in becoming a maintainer (we always welcome more maintaine
 [57]: https://github.com/autozimu/LanguageClient-neovim
 [58]: https://github.com/vim-airline/vim-airline/blob/master/LICENSE
 [59]: https://github.com/neoclide/coc-git
+[60]: https://github.com/cdelledonne/vim-cmake
