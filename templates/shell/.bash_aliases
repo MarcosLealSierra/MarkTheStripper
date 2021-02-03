@@ -40,6 +40,9 @@ fi
 # Python
 alias httpserver="python3 -m http.server"
 
+# Rdesktop
+alias rdpsecanet="xhost +; schroot -c chroot:stretch -- /opt/rdesktop-1.8.2/rdesktop localhost -u usuario -p xpp66dz10"
+
 # Rutas
 alias docu='cd /home/mleal/src/doc'
 alias docu-perelin002='cd /home/mleal/src/doc/00ebmproyectos/ran/perelin002'

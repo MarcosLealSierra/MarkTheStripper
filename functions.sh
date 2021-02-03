@@ -85,8 +85,8 @@ install_monitoring() {
 }
 
 install_local_backups() {
-    mv /root/src/servers/backup /etc/
-    cp -R /root/src/servers/cron.daily /etc/
+    mv /root/src/markthestripper/backup /etc/
+    cp -R /root/src/markthestripper/cron.daily /etc/
     chown -R root. /etc/backup
     etccommiter "Install local backups"
 }
@@ -112,7 +112,7 @@ configure_root_user() {
 configure_user() {
     adduser $local_user
     cp templates/shell/.bashrc_user "/home/$local_user/.bashrc"
-    cp templates/shell/.bashrc_aliases "/home/$local_user/.bash_aliases"
+    cp templates/shell/.bash_aliases "/home/$local_user/.bash_aliases"
     cp templates/shell/.vimrc "/home/$local_user/.vimrc"
     cp templates/shell/.tmux.conf "/home/$local_user/.tmux.conf"
     cp -R templates/shell/.tmux "/home/$local_user/.tmux"
