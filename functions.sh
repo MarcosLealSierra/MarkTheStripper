@@ -74,8 +74,8 @@ install_php() {
 }
 
 install_misc() {
-    apt install -y ack apache2 mariadb-server cron ntpdate wget tree sendmail \
-        tmux lshw rsync python3-mysqldb man curl
+    apt install -y ack anacron apache2 mariadb-server cron ntpdate wget tree \
+    sendmail tmux lshw rsync python3-mysqldb man curl
     etccommiter "Install miscellaneous packages"
 }
 
@@ -214,11 +214,11 @@ configure_iptables() {
     # permitimos el acceso HTTPS y HTTP a determinadas webs
     /sbin/iptables -N ACCESO_HTTP
     /sbin/iptables -A ACCESO_HTTP --src $WANIP -j ACCEPT
-    /sbin/iptables -I ACCESO_HTTP 1 --src $CLIENTE -j ACCEPT
+    #/sbin/iptables -I ACCESO_HTTP 1 --src $CLIENTE -j ACCEPT
     # bloquear y logear ciertas IPs (debe ir antes del ACCEPT general)
     # /sbin/iptables -A ACCESO_HTTP --src XXXXX -j LOG
     # /sbin/iptables -A ACCESO_HTTP --src XXXXX -j DROP
-    /sbin/iptables -A ACCESO_HTTP -j ACCEPT # DROP si queremos ser mas restrictivos
+    /sbin/iptables -A ACCESO_HTTP -j DROP # DROP si queremos ser mas restrictivos
     /sbin/iptables -I INPUT -m tcp -p tcp --dport 443 -j ACCESO_HTTP
     /sbin/iptables -I INPUT -m tcp -p tcp --dport 80  -j ACCESO_HTTP
 
