@@ -11,7 +11,7 @@
 # the full text of the license.
 
 # Usuario del sistema sin privilegios (normalmente bofh01):
-SYSTEMUSER=bofh01
+SYSTEMUSER=mleal
 
 # Usuario al que se le envían los mensajes de error (pueden ser cuentas reales)
 # lo mejor es utilizar un usuario local y gestionar el correo desde otro sitio

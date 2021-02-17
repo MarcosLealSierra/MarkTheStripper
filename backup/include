@@ -8,6 +8,6 @@
 #/var/lib/postgresql # con este segundo rsync aseguramos el snapshot
 #/var/lib/mysql # primero lento
 #/var/lib/mysql # con este segundo rsync aseguramos el snapshot
-/home/bofh01
+/home/mleal
 /var/lib/dpkg
 #/var/www
