@@ -18,6 +18,9 @@ function! s:gui2cui(rgb, fallback) abort
     return a:fallback
   elseif match(a:rgb, '^\%(NONE\|[fb]g\)$') > -1
     return a:rgb
+  elseif a:rgb[0] !~ '#'
+    " a:rgb contains colorname
+    return a:rgb
   endif
   let rgb = map(split(a:rgb[1:], '..\zs'), '0 + ("0x".v:val)')
   return airline#msdos#round_msdos_colors(rgb)
@@ -116,7 +119,15 @@ function! airline#highlighter#exec(group, colors) abort
   let colors = s:CheckDefined(colors)
   if old_hi != new_hi || !s:hl_group_exists(a:group)
     let cmd = printf('hi %s%s', a:group, s:GetHiCmd(colors))
-    exe cmd
+    try
+      exe cmd
+    catch /^Vim\%((\a\+)\)\=:E421:/ " color definition not found
+      let group=matchstr(v:exception, '\w\+\ze=')
+      let color=matchstr(v:exception, '=\zs\w\+')
+      let cmd=substitute(cmd, color, 'grey', 'g')
+      exe cmd
+      call airline#util#warning('color definition for group ' . a:group . ' not found, using grey as fallback')
+    endtry
     if has_key(s:hl_groups, a:group)
       let s:hl_groups[a:group] = colors
     endif
