@@ -58,17 +58,21 @@ if has("autocmd")
 endif
 
 " Ejecutar en la shell el texto de la linea actual
-nmap <F6> :exec '!'.getline('.')<CR>
-
+nmap <F6> :exec '!runcommand '.getline('.')<CR>
 
 " PLUGIN CONFIGURATIONS
 
 " Ultisnips
-let g:UltiSnipsExpandTrigger = "<tab>"
-let g:UltiSnipsJumpForwardTrigger = "<tab>"
-let g:UltiSnipsJumpBackwardTrigger = "<s-tab>"
-let g:UltiSnipsEditSplit = "vertical"
-let g:UltiSnipsListSnippets = "<c-l>"
+let g:UltiSnipsExpandTrigger = '<tab>'
+let g:UltiSnipsJumpForwardTrigger = '<tab>'
+let g:UltiSnipsJumpBackwardTrigger = '<s-tab>'
+"let g:UltiSnipsEditSplit = 'vertical'
+"let g:UltiSnipsListSnippets = '<c-l>'
+
+" YouCompleteMe
+let g:ycm_key_list_select_completion=[]
+let g:ycm_key_list_previous_completion=[]
+let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
 
 " NERDTree
 map <C-n> :NERDTreeToggle<CR>
@@ -98,21 +102,6 @@ call NERDTreeHighlightFile('js', 'Red', 'none', '#ffa500', '#151515')
 call NERDTreeHighlightFile('php', 'Magenta', 'none', '#ff00ff', '#151515')
 call NERDTreeHighlightFile('sql', 'brown', 'none', 'brown', '#151515')
 
-" Riv.vim
-" " quote cmd with '"', special key must contain '\'
-" let g:riv_i_tab_user_cmd = "\<c-g>u\<c-r>=snipMate#TriggerSnippet()\<cr>"
-" riv deshabilitar folding
-" set nofoldenable
-let g:riv_disable_folding = 1
-
-" YouCompleteMe
-"let g:ycm_server_python_interpreter='/usr/bin/python3'
-"let g:ycm_key_list_select_completion = ['<Down>']
-"inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "ᐅ"
-
-" VimCompletesMe
-"autocmd FileType vim let b:vcm_tab_complete = 'vim'
-"
 " Python-Syntax
 let g:python_highlight_all = 1
 
