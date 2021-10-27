@@ -1,7 +1,14 @@
+alias apagar='sudo shutdown -h now'
+alias reiniciar='sudo reboot'
+alias dormir='sudo systemctl hybrid-sleep'
+
 # Apt
 alias actualizar='sudo apt update && sudo apt upgrade'
 alias actualizables='sudo apt list --upgradable -a'
 alias limpiar-apt='sudo apt autoremove --purge && sudo apt autoclean'
+
+# Electrum
+alias update_electrum='python3 -m pip install --user .[gui,crypto]'
 
 # Files
 alias rmpyc='find . -name "*.pyc" -type f -delete -print'
@@ -23,7 +30,7 @@ alias gip-dns='dig @resolver1.opendns.com ANY myip.opendns.com +short'
 
 # Otros
 alias rm='rm -drvi'
-alias hora-exacta="date '+%H:%M:%S del %A %d/%m/%Y'"
+alias hora-exacta="date '+%H:%M:%S %A %d/%m/%Y'"
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
     alias ls='ls --color=auto'
@@ -42,6 +49,7 @@ alias httpserver="python3 -m http.server"
 
 # Rdesktop
 alias rdpsecanet="xhost +; schroot -c chroot:stretch -- /opt/rdesktop-1.8.2/rdesktop localhost -u usuario -p xpp66dz10"
+alias rdpsecanet_local="xhost +; schroot -c chroot:stretch -- /opt/rdesktop-1.8.2/rdesktop 192.168.1.252 -u usuario -p xpp66dz10"
 
 # Rutas
 alias docu='cd /home/mleal/src/doc'

@@ -11,7 +11,8 @@ NOTE: Minimum Requirements Have Changed
 Our policy is to support the Vim version that's in the latest LTS of Ubuntu.
 That's currently Ubuntu 20.04 which contains `vim-nox` at `v8.1.2269`.
 
-For neovim users, 0.4.4 is required.
+For neovim users, our policy is to require the latest released version. 
+Currently, neovim 0.5.0 is required.
 
 NOTE: Minimum compiler versions have been increased
 ----------------------------------------
@@ -95,6 +96,7 @@ Contents
 - [Contributor Code of Conduct](#contributor-code-of-conduct)
 - [Contact](#contact)
 - [License](#license)
+- [Sponsorship](#sponsorship)
 
 
 Intro
@@ -3457,6 +3459,17 @@ tells YCM where is the TSServer executable located.
 Similar to [the `gopls` path](#the-gycm-gopls-binaty-path), this option
 tells YCM where is the Omnisharp-Roslyn executable located.
 
+### The `g:ycm_update_diagnostics_in_insert_mode` option
+
+With async diagnostics, LSP servers might send new diagnostics mid-typing.
+If seeing these new diagnostics while typing is not desired, this option can
+be set to 0.
+
+Default: `1`
+
+```viml
+let g:ycm_update_diagnostics_in_insert_mode = 1
+```
 
 FAQ
 ---
@@ -3495,6 +3508,20 @@ License
 
 This software is licensed under the [GPL v3 license][gpl].
 © 2015-2018 YouCompleteMe contributors
+
+Sponsorship
+-----------
+
+If you like YCM so much that you're wiling to part with your hard-earned cash, please consider donating to one of the following charities, which are meaningful to the current maintainers (in no particular order):
+
+* [Greyhound Rescue Wales](https://greyhoundrescuewales.co.uk)
+* [Be Humane](https://www.budihuman.rs/en)
+* [Cancer Research UK](https://www.cancerresearchuk.org)
+* [ICCF Holland](https://iccf.nl)
+* Any charity of your choosing.
+
+Please note: The YCM maintainers do not specifically endorse nor necessarily have any relationship with the above charities. Disclosure: It is noted that one key maintainer is family with Trustees of Greyhound Rescue Wales.
+
 
 [ycmd]: https://github.com/ycm-core/ycmd
 [Clang]: https://clang.llvm.org/

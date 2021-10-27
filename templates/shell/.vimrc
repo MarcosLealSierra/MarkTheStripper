@@ -148,5 +148,8 @@ autocmd FileType rst autocmd BufEnter * syn match rstpass /\%(^\s*:[Pp]ass.*:\s*
 " (user/pwd)
 autocmd FileType rst autocmd BufEnter * syn match rstpass2 /\%(\s*(.[^/]*\/\)\@<=\S[^\)]*/ conceal cchar=* containedin=ALL
 
+" (user/pwd)
+autocmd FileType rst autocmd BufEnter * syn match rstpass2 /\%(\s*(.[^/]*::\)\@<=\S[^\)]*/ conceal cchar=* containedin=ALL
+
 " /p:----
 autocmd FileType rst autocmd BufEnter * syn match rdppass /\%(\s*\/[p]:\s*\)\@<=\S\+/ conceal cchar=* containedin=ALL
